@@ -1,12 +1,12 @@
-Set-Content -Path "C:\mavs_auditor\app.py" -Encoding UTF8 -Value @"
-import streamlit as st
+import os
+import json
 import requests
+import pandas as pd
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
-import pandas as pd
-import json
 import plotly.graph_objects as go
 import plotly.express as px
+import streamlit as st
 from google import genai
 from google.genai import types
 
@@ -72,17 +72,25 @@ st.markdown('<div class="report-title">🚀 AI-Powered SEO, AEO & GEO Engine</di
 st.markdown('<div class="report-subtitle">Dynamic Website Crawler & Comprehensive Optimization Audit</div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# Sidebar Controls
+# Sidebar Controls & Safe API Key Resolution
 # ---------------------------------------------------------
 st.sidebar.title("⚙️ Engine Controls")
-api_key = st.sidebar.text_input("Enter Gemini API Key:", value="AQ.Ab8RN6IDj0pMShHwurS0-YT30JLzRVnPdH8QveLJq3JAT_a_9Q", type="password")
+
+default_api_key = ""
+try:
+    if "GEMINI_API_KEY" in st.secrets:
+        default_api_key = st.secrets["GEMINI_API_KEY"]
+except Exception:
+    default_api_key = ""
+
+api_key = st.sidebar.text_input("Enter Gemini API Key:", value=default_api_key, type="password")
 
 target_url = st.text_input("Enter Website URL:", "https://mavspc.com")
 max_pages = st.slider("Max Pages to Crawl:", min_value=1, max_value=20, value=5)
 
 if st.button("Run Full AI Audit & Content Engine"):
     if not api_key:
-        st.error("Please enter a valid API Key in the sidebar.")
+        st.error("Please enter a valid Gemini API Key in the sidebar.")
     elif not target_url:
         st.error("Please enter a valid website URL.")
     else:
@@ -148,7 +156,6 @@ if st.button("Run Full AI Audit & Content Engine"):
                 client = genai.Client(api_key=api_key)
                 compiled_text = "\n\n".join([f"Page: {d['URL']}\nTitle: {d['Title']}\nContent: {d['Content_Snippet']}" for d in site_data])
 
-                # JSON Score Calculation Prompt
                 score_prompt = f"""
                 You are a technical SEO auditor. Evaluate this crawled data for {target_url}:
                 {compiled_text}
@@ -177,7 +184,6 @@ if st.button("Run Full AI Audit & Content Engine"):
                 }}
                 """
 
-                # Markdown Audit Report Prompt
                 report_prompt = f"""
                 You are an expert in SEO, Answer Engine Optimization (AEO), and Generative Engine Optimization (GEO).
                 Analyze this website data for {target_url}:
@@ -192,9 +198,8 @@ if st.button("Run Full AI Audit & Content Engine"):
                 """
 
                 preferred_models = [
-                    "gemini-3.6-flash",
-                    "gemini-3.5-flash",
-                    "gemini-3.7-flash"
+                    "gemini-2.5-flash",
+                    "gemini-2.0-flash"
                 ]
 
                 # Fetch AI Generated Metrics
@@ -212,7 +217,6 @@ if st.button("Run Full AI Audit & Content Engine"):
                     except Exception:
                         continue
 
-                # Fallback scores
                 if not scores_data:
                     scores_data = {
                         "overall_score": 72, "score_status": "NEEDS IMPROVEMENT",
@@ -268,7 +272,6 @@ if st.button("Run Full AI Audit & Content Engine"):
                         st.progress(sc / 100)
                     st.markdown('</div>', unsafe_allow_html=True)
 
-                # Issues & Page Status Row
                 col_b1, col_b2 = st.columns([1, 1])
 
                 with col_b1:
@@ -344,5 +347,5 @@ if st.button("Run Full AI Audit & Content Engine"):
                     """)
 
             except Exception as e:
-                st.error(f"Execution Error: {str(e)}")
+                st.error(f"Execution Error: {str(e)}"){str(e)}")
 "@
