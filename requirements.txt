@@ -4,5 +4,5 @@ requests
 beautifulsoup4
 pandas
 plotly
-google-genai
+google-genai>=0.1.0
 "@
