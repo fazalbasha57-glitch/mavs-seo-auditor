@@ -1,8 +1,8 @@
 Set-Content -Path "C:\mavs_auditor\requirements.txt" -Encoding UTF8 -Value @"
-streamlit
+streamlit>=1.30.0
 requests
 beautifulsoup4
 pandas
 plotly
-google-genai>=0.1.0
+google-genai==0.1.1
 "@
